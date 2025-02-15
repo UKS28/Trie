@@ -1,0 +1,101 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    Node* children[26];
+    int endCount = 0;
+    int prefixCount = 0;
+
+    Node() {
+        for (int i = 0; i < 26; i++) {
+            children[i] = nullptr;  // Ensure all pointers are initialized
+        }
+    }
+
+    bool containsKey(char ch) {
+        return children[ch - 'a'] != nullptr;
+    }
+
+    void setChild(char ch, Node* node) {
+        children[ch - 'a'] = node;
+    } 
+
+    Node* getChild(char ch) {
+        return children[ch - 'a'];
+    }
+
+    void increasePrefixCount() {
+        prefixCount++;
+    }
+
+    void increaseEndCount() {
+        endCount++;
+    }
+
+    int getPrefixCount() {
+        return prefixCount;
+    }
+
+    int getEndCount() {
+        return endCount;
+    }
+
+    void decreasePrefixCount() {
+        prefixCount--;
+    }
+
+    void decreaseEndCount() {
+        endCount--;
+    }
+};
+
+class Trie {
+private:
+    Node* root;
+
+public:
+    Trie() {
+        root = new Node();
+    }
+
+    void insert(string &word) {
+        Node* curr = root;
+        for (char &ch : word) {
+            if (!curr->containsKey(ch)) {
+                curr->setChild(ch, new Node());
+            }
+            curr = curr->getChild(ch);
+            curr->increasePrefixCount();
+        }
+        curr->increaseEndCount();
+    }
+
+    int countWordsEqualTo(string &word) {
+        Node* curr = root;
+        for (char &ch : word) {
+            if (!curr->containsKey(ch)) return 0;
+            curr = curr->getChild(ch);
+        }
+        return curr->getEndCount();
+    }
+
+    int countWordsStartingWith(string &word) {
+        Node* curr = root;
+        for (char &ch : word) {
+            if (!curr->containsKey(ch)) return 0;
+            curr = curr->getChild(ch);
+        }
+        return curr->getPrefixCount();
+    }
+
+    void erase(string &word) {
+        if (countWordsEqualTo(word) == 0) return;
+
+        Node* curr = root;
+        for (char &ch : word) {
+            curr = curr->getChild(ch);
+            curr->decreasePrefixCount();
+        }
+        curr->decreaseEndCount();
+    }
+};
